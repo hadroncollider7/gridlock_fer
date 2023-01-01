@@ -1,12 +1,16 @@
 import mysql.connector
 from mysql.connector import Error       # Catches exceptions that may occur during this process.
+import yaml
+
+with open('config.yml','r') as ymlConfigFile:
+    config = yaml.safe_load(ymlConfigFile)
 
 try:
     connection = mysql.connector.connect(
-        host='127.0.0.0',
-        database='',
-        user='',
-        password='')
+        host = config['mysql']['host'],
+        database = config['mysql']['database'],
+        user = config['mysql']['user'],
+        password = config['mysql']['password'])
     
     if connection.is_connected():
         db_Info = connection.get_server_info()

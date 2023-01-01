@@ -1,14 +1,17 @@
 """This program creates a table in the mySQL database."""
 import mysql.connector
+import yaml
 
+with open('config.yml','r') as ymlConfigFile:
+    config = yaml.safe_load(ymlConfigFile)
 
 try:
     # Connect to the database server.
     connection = mysql.connector.connect(
-        host='localhost',
-        database='',
-        user='',
-        password='')
+        host = config['mysql']['host'],
+        database = config['mysql']['database'],
+        user = config['mysql']['user'],
+        password = config['mysql']['password'])
     # Instructions to create the table its columns.
     mySql_Create_Table_Query = """CREATE TABLE FER_Predictions(
                             id int(11) NOT NULL,
