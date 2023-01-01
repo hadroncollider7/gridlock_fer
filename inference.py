@@ -43,11 +43,14 @@ def inference(model, img_path, transform, is_cuda=True):
     print('Predicted: {}'.format(key[idx]))
     print('Probabilities:')
     for i in range(cfg.num_classes):
-        print('{} ----> {}'.format(key[i], round(prob[0,i].item(), 2)))
+        print('{} ----> {}'.format(key[i], round(prob[0,i].item(), 4)))
+    
+    return idx
 
 
 if __name__ == '__main__':
-    img_path = './images/test1.jpg'
+    os.system("cls")
+    img_path = './images/test2.jpg'
 
     transform = T.Compose([
             T.Resize(cfg.ori_shape),
@@ -61,5 +64,9 @@ if __name__ == '__main__':
     model.load_param(cfg)
     print('Loaded pretrained model from {0}'.format(cfg.pretrained))
 
-    inference(model, img_path, transform, is_cuda=True)
+    ferPrediction = inference(model, img_path, transform, is_cuda=True)
+    print('\nThe FER prediction is: ', ferPrediction)
     
+    img_path = './images/test1.jpg'
+    ferPrediction = inference(model, img_path, transform, is_cuda=True)
+    print('\nThe FER prediction is: ', ferPrediction)
