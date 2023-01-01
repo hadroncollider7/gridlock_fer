@@ -130,3 +130,7 @@ dmypy.json
 
 # Secret congiuration files
 config.yml
+
+# Images
+*.png 
+*.jpg 
