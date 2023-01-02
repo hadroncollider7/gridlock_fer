@@ -2,7 +2,7 @@
 The purpose of this repository is to develop the FER component of Project Gridlock.
 
 ## Prerequisites
-Because the database server is on Rowan's network, and subject to its firewall, it can only be accessed remotely through Rowan's vpn, or will connected through Rowan's Wifi.
+Because the database server is on Rowan's network, and subject to its firewall, it can only be accessed remotely through Rowan's vpn, or while connected through Rowan's Wifi network.
 
 The configuration file is required to access the database.
 
