@@ -14,7 +14,7 @@ def deleteFromTable(id,cursor,connection):
     print("Record id#{0} successfully deleted from FER_Predictions table".format(id))
 
 
-def insertIntoTable(id, name, value):
+def insertIntoTable(id, name, value, filename):
     try:
         connection = mysql.connector.connect(
                                     host = config['mysql']['host'],
@@ -26,8 +26,8 @@ def insertIntoTable(id, name, value):
             cursor = connection.cursor()
             deleteFromTable(id,cursor,connection)
                         
-            mysqlQuery = """INSERT INTO FER_Predictions (id,name,value)
-                            VALUES ({0},'{1}',{2});""".format(id,name,value)
+            mysqlQuery = """INSERT INTO FER_Predictions (id,name,value,filename)
+                            VALUES ({0},'{1}',{2},'{3}');""".format(id,name,value,filename)
             cursor.execute(mysqlQuery)
             connection.commit()
             print("Record successfully inserted into FER_Predictions table")

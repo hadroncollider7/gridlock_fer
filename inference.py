@@ -54,11 +54,13 @@ def multiplePredictions(img_path,printFilenames=False):
     ferPredictions list. 
     """
     ferPrediction = []
+    filenames = []
     for filename in sorted(os.listdir(img_path)):
         ferPrediction.append(inference(model, img_path+filename, transform, is_cuda=True))
+        filenames.append(filename)
         if printFilenames:
             print(filename)
-    return ferPrediction
+    return ferPrediction, filenames
     
 
 
@@ -82,8 +84,8 @@ if __name__ == '__main__':
     print('Loaded pretrained model from {0}'.format(cfg.pretrained))
     
     key = {0: 'Neutral', 1:'Happy', 2:'Sad', 3:'Surprise', 4:'Fear', 5:'Disgust', 6:'Anger', 7:'Contempt'}
-    predictions = multiplePredictions(img_path,True)
+    predictions, filenames = multiplePredictions(img_path,True)
     print(predictions)
     for i in range(len(predictions)):
-        insertIntoTable(id=i+1, name=key[predictions[i]], value=predictions[i])    
+        insertIntoTable(id=i+1, name=key[predictions[i]], value=predictions[i], filename=filenames[i])    
     
