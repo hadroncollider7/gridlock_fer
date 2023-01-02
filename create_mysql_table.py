@@ -13,9 +13,10 @@ try:
         user = config['mysql']['user'],
         password = config['mysql']['password'])
     # Instructions to create the table its columns.
-    mySql_Create_Table_Query = """CREATE TABLE FER_Predictions(
-                            id int(11) NOT NULL,
-                            Predicted varchar(250) NOT NULL,
+    mySql_Create_Table_Query = """CREATE TABLE FER_Predictions (
+                            id INT unsigned NOT NULL,
+                            name VARCHAR(10) NOT NULL,
+                            value INT,
                             PRIMARY KEY (id)) """
     
     cursor = connection.cursor()

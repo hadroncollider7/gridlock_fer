@@ -7,6 +7,8 @@ import torchvision.transforms as T
 
 from models.make_target_model import make_target_model
 
+from mysql_queries import insertIntoTable
+
 
 class Config:
     pass
@@ -50,7 +52,7 @@ def inference(model, img_path, transform, is_cuda=True):
 
 if __name__ == '__main__':
     os.system("cls")
-    img_path = './images/test2.jpg'
+    img_path = './images/test1.jpg'
 
     transform = T.Compose([
             T.Resize(cfg.ori_shape),
@@ -59,14 +61,14 @@ if __name__ == '__main__':
             T.Normalize(mean=cfg.normalize_mean, std=cfg.normalize_std),
         ])
 
+    # Build model and load pre-trained weights into it
     print('Building model......')
     model = make_target_model(cfg)
     model.load_param(cfg)
     print('Loaded pretrained model from {0}'.format(cfg.pretrained))
 
     ferPrediction = inference(model, img_path, transform, is_cuda=True)
-    print('\nThe FER prediction is: ', ferPrediction)
+    key = {0: 'Neutral', 1:'Happy', 2:'Sad', 3:'Surprise', 4:'Fear', 5:'Disgust', 6:'Anger', 7:'Contempt'}
+
+    insertIntoTable(id=2, name=key[ferPrediction], value=ferPrediction)    
     
-    img_path = './images/test1.jpg'
-    ferPrediction = inference(model, img_path, transform, is_cuda=True)
-    print('\nThe FER prediction is: ', ferPrediction)
