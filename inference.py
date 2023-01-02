@@ -27,7 +27,7 @@ cfg.bnneck = True
 cfg.BiasInCls = False
 
 
-def inference(model, img_path, transform, is_cuda=True):
+def inference(model, img_path, transform, printPredictions=False, is_cuda=True):
     img = Image.open(img_path).convert('RGB')    
     img_tensor = transform(img).unsqueeze(0)
     if is_cuda:
@@ -41,18 +41,32 @@ def inference(model, img_path, transform, is_cuda=True):
     prob = F.softmax(pred, dim=-1)
     idx  = torch.argmax(prob.cpu()).item()
 
-    key = {0: 'Neutral', 1:'Happy', 2:'Sad', 3:'Surprise', 4:'Fear', 5:'Disgust', 6:'Anger', 7:'Contempt'}
-    print('Predicted: {}'.format(key[idx]))
-    print('Probabilities:')
-    for i in range(cfg.num_classes):
-        print('{} ----> {}'.format(key[i], round(prob[0,i].item(), 4)))
-    
+    if printPredictions==True:
+        key = {0: 'Neutral', 1:'Happy', 2:'Sad', 3:'Surprise', 4:'Fear', 5:'Disgust', 6:'Anger', 7:'Contempt'}
+        print('Predicted: {}'.format(key[idx]))
+        print('Probabilities:')
+        for i in range(cfg.num_classes):
+            print('{} ----> {}'.format(key[i], round(prob[0,i].item(), 4)))
     return idx
+
+def multiplePredictions(img_path,printFilenames=False):
+    """Predict emotions of all images in the img_path, and stores it in the
+    ferPredictions list. 
+    """
+    ferPrediction = []
+    for filename in sorted(os.listdir(img_path)):
+        ferPrediction.append(inference(model, img_path+filename, transform, is_cuda=True))
+        if printFilenames:
+            print(filename)
+    return ferPrediction
+    
+
+
 
 
 if __name__ == '__main__':
     os.system("cls")
-    img_path = './images/test1.jpg'
+    img_path = './images/'
 
     transform = T.Compose([
             T.Resize(cfg.ori_shape),
@@ -66,9 +80,10 @@ if __name__ == '__main__':
     model = make_target_model(cfg)
     model.load_param(cfg)
     print('Loaded pretrained model from {0}'.format(cfg.pretrained))
-
-    ferPrediction = inference(model, img_path, transform, is_cuda=True)
+    
     key = {0: 'Neutral', 1:'Happy', 2:'Sad', 3:'Surprise', 4:'Fear', 5:'Disgust', 6:'Anger', 7:'Contempt'}
-
-    insertIntoTable(id=2, name=key[ferPrediction], value=ferPrediction)    
+    predictions = multiplePredictions(img_path,True)
+    print(predictions)
+    for i in range(len(predictions)):
+        insertIntoTable(id=i+1, name=key[predictions[i]], value=predictions[i])    
     

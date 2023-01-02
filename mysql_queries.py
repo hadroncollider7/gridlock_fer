@@ -5,6 +5,14 @@ import os
 
 with open('config.yml','r') as ymlConfigFile:
     config = yaml.safe_load(ymlConfigFile)
+    
+def deleteFromTable(id,cursor,connection):
+    """This function is only called from the insertIntoTable() function."""
+    mysqlQuery = """DELETE FROM FER_Predictions where id={0};""".format(id)
+    cursor.execute(mysqlQuery)
+    connection.commit()
+    print("Record id#{0} successfully deleted from FER_Predictions table".format(id))
+
 
 def insertIntoTable(id, name, value):
     try:
@@ -16,8 +24,10 @@ def insertIntoTable(id, name, value):
         
         if connection.is_connected():
             cursor = connection.cursor()
+            deleteFromTable(id,cursor,connection)
+                        
             mysqlQuery = """INSERT INTO FER_Predictions (id,name,value)
-                            VALUES ({0},'{1}',{2})""".format(id,name,value)
+                            VALUES ({0},'{1}',{2});""".format(id,name,value)
             cursor.execute(mysqlQuery)
             connection.commit()
             print("Record successfully inserted into FER_Predictions table")
