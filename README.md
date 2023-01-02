@@ -6,7 +6,10 @@ Because the database server is on Rowan's network, and subject to its firewall, 
 
 The configuration file is required to access the database.
 
-## Making FER predictions
-Run `inference.py` to make the FER prediction on the image in the `img_path` filepath. Create an `images` folder and put the image in there.
+ Create an `images` folder and put images in there.
 
-After inference, the prediction string and value will be stored in the `FER_Predictions` table in the database server at the `id` index of the table.
+
+## Making FER predictions
+Run `inference.py` to make FER predictions on all image files in the `img_path` filepath.
+
+After inference, the prediction string, value (int), and filename (string) associated with each prediction will be stored in the `FER_Predictions` table in the database server at the `id` index of the table.
