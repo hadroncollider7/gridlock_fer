@@ -1,4 +1,4 @@
-# project_gridlock
+# gridlock_fer
 The purpose of this repository is to develop the FER component of Project Gridlock.
 
 The configuration file is required to access the database.
