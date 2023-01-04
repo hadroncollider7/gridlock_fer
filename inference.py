@@ -84,8 +84,9 @@ if __name__ == '__main__':
     print('Loaded pretrained model from {0}'.format(cfg.pretrained))
     
     key = {0: 'Neutral', 1:'Happy', 2:'Sad', 3:'Surprise', 4:'Fear', 5:'Disgust', 6:'Anger', 7:'Contempt'}
-    predictions, filenames = multiplePredictions(img_path,True)
-    print(predictions)
+    predictions, filenames = multiplePredictions(img_path)
+    for i in range(len(predictions)):
+        print("{0} ---> {1}".format(filenames[i], key[predictions[i]]))
     for i in range(len(predictions)):
         insertIntoTable(id=i+1, name=key[predictions[i]], value=predictions[i], filename=filenames[i])    
     
