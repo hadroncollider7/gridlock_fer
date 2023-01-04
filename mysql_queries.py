@@ -62,7 +62,12 @@ if __name__ == '__main__':
             mysqlQuery = 'SELECT * FROM FER_Predictions;'
             cursor.execute(mysqlQuery)
             record = cursor.fetchall()
-            print("Query results:\n", record)
+            
+            # Print the table
+            print("\nQuery results (id, name, value, filename):\n")            
+            # Loop throught the rows
+            for row in record:
+                print("{0}\n".format(row))
 
     except Error as e:
         print("Error while connecting to MySQL", e)
