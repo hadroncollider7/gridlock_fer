@@ -49,9 +49,13 @@ def inference(model, img_path, transform, printPredictions=False, is_cuda=True):
             print('{} ----> {}'.format(key[i], round(prob[0,i].item(), 4)))
     return idx
 
-def multiplePredictions(img_path,printFilenames=False):
-    """Predict emotions of all images in the img_path, and stores it in the
+def multiplePredictions(model, img_path, transform, printFilenames=False):
+    """
+    Predict emotions of all images in the img_path, and stores it in the
     ferPredictions list. 
+    
+    Outputs:
+        Two lists containing the predictiction string and the filename, respectively.
     """
     ferPrediction = []
     filenames = []
@@ -84,7 +88,7 @@ if __name__ == '__main__':
     print('Loaded pretrained model from {0}'.format(cfg.pretrained))
     
     key = {0: 'Neutral', 1:'Happy', 2:'Sad', 3:'Surprise', 4:'Fear', 5:'Disgust', 6:'Anger', 7:'Contempt'}
-    predictions, filenames = multiplePredictions(img_path)
+    predictions, filenames = multiplePredictions(model, img_path, transform)
     for i in range(len(predictions)):
         print("{0} ---> {1}".format(filenames[i], key[predictions[i]]))
     for i in range(len(predictions)):
