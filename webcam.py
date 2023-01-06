@@ -6,9 +6,11 @@ from torchvision import transforms
 from inference import inference
 import torchvision.transforms as T
 from models.make_target_model import make_target_model
+from collections import Counter, deque
 
 transformation = transforms.Compose([transforms.ToTensor(), transforms.Normalize((0.5,), (0.5,))])
-key = {0: '^(* . *)^', 1:'<(^___^)>', 2:'(TT____TT)', 3:'(X___X)', 4:'\(>___<)/', 5:'Disgust', 6:'Angy!!!', 7:'Contempt'}
+key = {0: '^(* . *)^ --> Neutral', 1:'<(^___^)> --> Happy', 2:'(TT____TT) --> Sad', 
+       3:'(O___0) --> Surprise', 4:'\(>___<)/ --> Fear', 5:'Disgust', 6:'Angy!!! --> >:(', 7:'Contempt --> X______X'}
 
 
 class Config:
@@ -34,6 +36,20 @@ def load_img(path):
     img = torch.autograd.Variable(img, requires_grad = True)
     img = img.unsqueeze(0)
     return img.to(device)
+
+
+def computeModeOfList(myList):
+    """Compute the mode of a list. Prioritizes the order of the element.
+
+    Args:
+        myList: A list or que.
+    Returns:
+        The most common element in the list.
+    """
+    count = Counter(myList)
+    mostCommonElement = count.most_common(1)
+    return mostCommonElement[0][0]
+
     
     
     
@@ -60,6 +76,14 @@ if __name__ == "__main__":
     # Load the cascade
     face_cascade = cv2. CascadeClassifier('haarcascade_frontalface_default.xml')
     
+    # Initialize a que to store predictions
+    predictionsList = []
+    queSize = 5
+    for i in range(20):
+        predictionsList.append(0)
+    predictionsList = deque(predictionsList)
+    print("Initialized que of size {0}".format(len(predictionsList)))
+    
     capture = cv2.VideoCapture(0)
     while True:
         _, img = capture.read()
@@ -76,15 +100,18 @@ if __name__ == "__main__":
             regionOfInterest = cv2.resize(regionOfInterest, (256,256))
             cv2.imwrite("regionOfInterest.jpg", regionOfInterest)
             cv2.rectangle(img, (x, y), (x+w, y+h), (255, 0, 0), 2)
-            
-        prediction = inference(model, 'regionOfInterest.jpg', transform)
         
+        predictionsList.append(inference(model, 'regionOfInterest.jpg', transform))
+        predictionsList.popleft()
+        predictionsMode = computeModeOfList(predictionsList)
+        print(predictionsList)
+        print("length: {0}, mode: {1}".format(len(predictionsList), predictionsMode))
         font = cv2.FONT_HERSHEY_SIMPLEX
         org = (50, 50)
         fontScale = 1
         color = (255, 0, 0)
         thickness = 2
-        img = cv2.putText(img, key[prediction], org, font, fontScale, color, thickness, cv2.LINE_AA)
+        img = cv2.putText(img, key[predictionsMode], org, font, fontScale, color, thickness, cv2.LINE_AA)
         
         
         cv2.imshow('img', img)
