@@ -32,10 +32,20 @@ cfg.bnneck = True
 cfg.BiasInCls = False
 
 
+def sortTwoListsTogether(a, b):
+    zipped_list = zip(a,b)
+    sorted_pairs = sorted(zipped_list)
 
-if __name__ == '__main__':
+    tuples = zip(*sorted_pairs)
+    sorted_a, sorted_b = [list(tuple) for tuple in tuples]
+    return sorted_a, sorted_b
+
+
+
+
+if __name__ == "__main__":
     os.system("cls")
-    img_path = 'images/batch4/0-822/'
+    img_path = 'images/batch2/'
 
     transform = T.Compose([
             T.Resize(cfg.ori_shape),
@@ -56,7 +66,7 @@ if __name__ == '__main__':
     key_researchGroup = {0:0, 1:6, 2:7, 3:5, 4:4, 5:1, 6:2, 7:3, 8:8, 9:9}
     
     # Read labels from the research group spreadsheet
-    spreadsheet = 'Batch4_Labels.xlsx'
+    spreadsheet = 'Batch2_Labels.xlsx'
     column = 'chau'
     sheet = 'Labels'
     dataframe1 = pd.read_excel(spreadsheet, sheet_name=[sheet], usecols=['Image', column])
@@ -79,6 +89,10 @@ if __name__ == '__main__':
         labelDictionary[labelFilenames[i]] = subjectiveLabels[i]
     
     predictions, filenames = multiplePredictions(model, img_path, transform)
+    
+    # Sort by predictions in ascending order
+    predictions, filenames = sortTwoListsTogether(predictions, filenames)
+    
     count = 0
     accuracy_score = 0
     for i in range(len(predictions)): 
@@ -91,6 +105,7 @@ if __name__ == '__main__':
             if  key[predictions[i]] == key[key_researchGroup[labelDictionary[filenames[i]]]]: 
                 accuracy_score += 1
             count += 1 
+    
     
     print('Total predictions: ', len(predictions))
     print('number of bad images: ', len(notAFace_images))
