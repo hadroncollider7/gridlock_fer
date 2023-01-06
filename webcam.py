@@ -8,6 +8,12 @@ import torchvision.transforms as T
 from models.make_target_model import make_target_model
 from collections import Counter, deque
 from mysql_queries import insertIntoTable
+import mysql.connector
+from mysql.connector import Error       # Catches exceptions that may occur during this process.
+import yaml
+with open('config.yml','r') as ymlConfigFile:
+    config = yaml.safe_load(ymlConfigFile)
+
 
 transformation = transforms.Compose([transforms.ToTensor(), transforms.Normalize((0.5,), (0.5,))])
 key_mysql = {0: 'Neutral', 1:'Happy', 2:'Sad', 3:'Surprise', 4:'Fear', 5:'Disgust', 6:'Anger', 7:'Contempt'}
@@ -88,54 +94,71 @@ if __name__ == "__main__":
     
     # Used for the numner of ticks until upload prediction to database server
     counterToUpload = 0
-    
-    capture = cv2.VideoCapture(0)
-    while True:
-        _, img = capture.read()
+    try:
+        connection = mysql.connector.connect(
+                                    host = config['mysql']['host'],
+                                    database = config['mysql']['database'],
+                                    user = config['mysql']['user'],
+                                    password = config['mysql']['password'])
         
-        # Convert to grayscale
-        gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
-        # Detect faces
-        faces = face_cascade.detectMultiScale(gray, 1.1, 4)
+        if connection.is_connected():
+            cursor = connection.cursor()
+            print("Connected to mySQL database server. Cursor object created.")
+        capture = cv2.VideoCapture(0)
+        while True:
+            _, img = capture.read()
+            
+            # Convert to grayscale
+            gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+            # Detect faces
+            faces = face_cascade.detectMultiScale(gray, 1.1, 4)
+            
+            # Draw the rectangle around each face
+            for (x, y, w, h) in faces:
+                regionOfInterest = img[y:y+h, x:x+w]
+                regionOfInterest = cv2.cvtColor(regionOfInterest, cv2.COLOR_BGR2GRAY)
+                regionOfInterest = cv2.resize(regionOfInterest, (256,256))
+                cv2.imwrite("regionOfInterest.jpg", regionOfInterest)
+                cv2.rectangle(img, (x, y), (x+w, y+h), (255, 0, 0), 2)
+            
+            predictionsList.append(inference(model, 'regionOfInterest.jpg', transform))
+            predictionsList.popleft()
+            predictionsMode = computeModeOfList(predictionsList)
+            print(predictionsList)
+            print("length: {0}, mode: {1}".format(len(predictionsList), predictionsMode))
+            font = cv2.FONT_HERSHEY_SIMPLEX
+            org = (50, 50)
+            fontScale = 1
+            color = (255, 0, 0)
+            thickness = 2
+            img = cv2.putText(img, key[predictionsMode], org, font, fontScale, color, thickness, cv2.LINE_AA)
+            
+            
+            cv2.imshow('img', img)
+            
+            # Upload to database server after a certain number of ticks
+            noOfTicks = 5
+            if counterToUpload % noOfTicks == noOfTicks - 1:
+                insertIntoTable(connection, cursor, 
+                                id=1, 
+                                name=key_mysql[predictionsMode], 
+                                value=predictionsMode, 
+                                filename='regionOfInterest.jpg')
+            counterToUpload += 1
+            
+            # Stop if (Q) is pressed
+            k = cv2.waitKey(30)
+            if k==ord("q"):
+                break
         
-        # Draw the rectangle around each face
-        for (x, y, w, h) in faces:
-            regionOfInterest = img[y:y+h, x:x+w]
-            regionOfInterest = cv2.cvtColor(regionOfInterest, cv2.COLOR_BGR2GRAY)
-            regionOfInterest = cv2.resize(regionOfInterest, (256,256))
-            cv2.imwrite("regionOfInterest.jpg", regionOfInterest)
-            cv2.rectangle(img, (x, y), (x+w, y+h), (255, 0, 0), 2)
-        
-        predictionsList.append(inference(model, 'regionOfInterest.jpg', transform))
-        predictionsList.popleft()
-        predictionsMode = computeModeOfList(predictionsList)
-        print(predictionsList)
-        print("length: {0}, mode: {1}".format(len(predictionsList), predictionsMode))
-        font = cv2.FONT_HERSHEY_SIMPLEX
-        org = (50, 50)
-        fontScale = 1
-        color = (255, 0, 0)
-        thickness = 2
-        img = cv2.putText(img, key[predictionsMode], org, font, fontScale, color, thickness, cv2.LINE_AA)
-        
-        
-        cv2.imshow('img', img)
-        
-        # Upload to database server after a certain number of ticks
-        noOfTicks = 10
-        if counterToUpload % noOfTicks == noOfTicks - 1:
-            insertIntoTable(1, key_mysql[predictionsMode], predictionsMode, 'regionOfInterest.jpg')
-        counterToUpload += 1
-        
-        # Stop if (Q) is pressed
-        k = cv2.waitKey(30)
-        if k==ord("q"):
-            break
-        
-        
-        
-    
-    
-    # Release the VideoCapture object
-    capture.release()
+        # Release the VideoCapture object
+        capture.release()
 
+    except Error as e:
+        print("Error while connecting to MySQL", e)
+    finally:
+        if connection.is_connected():
+            cursor.close()
+            connection.close()
+            print("\nMySQL connection is closed")
+    

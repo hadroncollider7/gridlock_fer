@@ -14,33 +14,13 @@ def deleteFromTable(id,cursor,connection):
     print("Record id#{0} successfully deleted from FER_Predictions table".format(id))
 
 
-def insertIntoTable(id, name, value, filename):
-    try:
-        connection = mysql.connector.connect(
-                                    host = config['mysql']['host'],
-                                    database = config['mysql']['database'],
-                                    user = config['mysql']['user'],
-                                    password = config['mysql']['password'])
-        
-        if connection.is_connected():
-            cursor = connection.cursor()
-            deleteFromTable(id,cursor,connection)
-                        
-            mysqlQuery = """INSERT INTO FER_Predictions (id,name,value,filename)
-                            VALUES ({0},'{1}',{2},'{3}');""".format(id,name,value,filename)
-            cursor.execute(mysqlQuery)
-            connection.commit()
-            print("Record successfully inserted into FER_Predictions table")
-
-    except Error as e:
-        print("Error while connecting to MySQL", e)
-    finally:
-        if connection.is_connected():
-            cursor.close()
-            connection.close()
-            print("\nMySQL connection is closed")
-
-
+def insertIntoTable(connection, cursor, id, name, value, filename):
+    deleteFromTable(id,cursor,connection)       # Delete current row entries at id
+    mysqlQuery = """INSERT INTO FER_Predictions (id,name,value,filename)
+                    VALUES ({0},'{1}',{2},'{3}');""".format(id,name,value,filename)
+    cursor.execute(mysqlQuery)
+    connection.commit()
+    print("Record successfully inserted into FER_Predictions table")
 
 
 
