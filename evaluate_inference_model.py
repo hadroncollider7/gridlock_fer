@@ -59,13 +59,13 @@ if __name__ == "__main__":
     print('Loaded pretrained model from {0}'.format(cfg.pretrained))
 
     # The AffectNet key
-    key = {0: 'Neutral', 1:'Happy', 2:'Sad', 3:'Surprise', 4:'Fear', 5:'Disgust', 6:'Anger', 7:'Contempt', 8:'Amiguous', 9:'Not a Face'}
+    key = {0: 'Neutral', 1:'Happy', 2:'Sad', 3:'Surprise', 4:'Fear', 5:'Disgust', 6:'Anger', 7:'Contempt', 8:'Ambiguous', 9:'Not a Face'}
     # Convert the research group key to the AffectNet key
     key_researchGroup = {0:0, 1:6, 2:7, 3:5, 4:4, 5:1, 6:2, 7:3, 8:8, 9:9}
     
     # Read labels from the research group spreadsheet
-    batch_no = 2
-    column = 'chau'
+    batch_no = 1
+    column = 'Ryan'
     sheet = 'Labels'
     
     if batch_no == 2:
@@ -77,7 +77,11 @@ if __name__ == "__main__":
     elif batch_no == 4:
         img_path = 'images/batch4/0-822/'
         spreadsheet = 'Batch4_Labels.xlsx'
+    elif batch_no == 1:
+        img_path = 'images/batch1/0-999/'
+        spreadsheet = 'Batch1_Labels.xlsx'
 
+    # Read in the spreadsheet
     dataframe1 = pd.read_excel(spreadsheet, sheet_name=[sheet], usecols=['Image', column])
     labelFilenames = list(dataframe1[sheet]['Image'])
     subjectiveLabels = list(dataframe1[sheet][column])
@@ -98,7 +102,6 @@ if __name__ == "__main__":
         labelDictionary[labelFilenames[i]] = subjectiveLabels[i]
     
     predictions, filenames = multiplePredictions(model, img_path, transform)
-    
     # Sort by predictions in ascending order
     predictions, filenames = sortTwoListsTogether(predictions, filenames)
     
