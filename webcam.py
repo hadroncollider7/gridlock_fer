@@ -82,7 +82,7 @@ if __name__ == "__main__":
     print('Loaded pretrained model from {0}'.format(cfg.pretrained))
     
     # Load the cascade
-    face_cascade = cv2. CascadeClassifier('haarcascade_frontalface_default.xml')
+    face_cascade = cv2.CascadeClassifier('haarcascade_frontalface_default.xml')
     
     # Initialize a que to store predictions
     predictionsList = []
