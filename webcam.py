@@ -8,7 +8,7 @@ import torchvision.transforms as T
 from models.make_target_model import make_target_model
 
 transformation = transforms.Compose([transforms.ToTensor(), transforms.Normalize((0.5,), (0.5,))])
-key = {0: 'Neutral', 1:'Happy', 2:'Sad', 3:'Surprise', 4:'Fear', 5:'Disgust', 6:'Anger', 7:'Contempt'}
+key = {0: '^(* . *)^', 1:'<(^___^)>', 2:'(TT____TT)', 3:'(X___X)', 4:'\(>___<)/', 5:'Disgust', 6:'Angy!!!', 7:'Contempt'}
 
 
 class Config:
