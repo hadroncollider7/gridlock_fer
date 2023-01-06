@@ -6,6 +6,7 @@ from torchvision import transforms
 from inference import inference
 import torchvision.transforms as T
 from models.make_target_model import make_target_model
+from collections import Counter
 
 transformation = transforms.Compose([transforms.ToTensor(), transforms.Normalize((0.5,), (0.5,))])
 key = {0: '^(* . *)^', 1:'<(^___^)>', 2:'(TT____TT)', 3:'(O___0)', 4:'\(>___<)/', 5:'Disgust', 6:'Angy!!!', 7:'Contempt'}
@@ -34,6 +35,20 @@ def load_img(path):
     img = torch.autograd.Variable(img, requires_grad = True)
     img = img.unsqueeze(0)
     return img.to(device)
+
+
+def computeModeOfList(myList):
+    """Compute the mode of a list. Prioritizes the order of the element.
+
+    Args:
+        myList (string)
+    Returns:
+        string: The most common element in the list.
+    """
+    count = Counter(myList)
+    mostCommonElement = count.most_common(1)
+    return mostCommonElement[0][0]
+
     
     
     
