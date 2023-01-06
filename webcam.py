@@ -78,8 +78,8 @@ if __name__ == "__main__":
     
     # Initialize a que to store predictions
     predictionsList = []
-    queSize = 5
-    for i in range(20):
+    queSize = 7
+    for i in range(queSize):
         predictionsList.append(0)
     predictionsList = deque(predictionsList)
     print("Initialized que of size {0}".format(len(predictionsList)))
