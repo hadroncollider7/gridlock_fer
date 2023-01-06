@@ -8,11 +8,12 @@ The configuration file is required to access the database.
 
  Create an `images` folder and put images in there.
 
- Pytorch = 1.13.0
- Python = 3.9.15
- yaml = 6.0
- mySQL Connector = 8.0.31
- cuda = 11.7.1
+### Modules
+ - Pytorch = 1.13.0
+ - Python = 3.9.15
+ - yaml = 6.0
+ - mySQL Connector = 8.0.31
+ - cuda = 11.7.1
 
 
 ## Making FER predictions
