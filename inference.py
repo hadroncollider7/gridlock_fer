@@ -1,14 +1,15 @@
 import os
 from PIL import Image
-
 import torch
 import torch.nn.functional as F
 import torchvision.transforms as T
-
 from models.make_target_model import make_target_model
-
 from mysql_queries import insertIntoTable
-
+import mysql.connector
+from mysql.connector import Error       # Catches exceptions that may occur during this process.
+import yaml
+with open('config.yml','r') as ymlConfigFile:
+    config = yaml.safe_load(ymlConfigFile)
 
 class Config:
     pass
@@ -72,7 +73,7 @@ def multiplePredictions(model, img_path, transform, printFilenames=False):
 
 if __name__ == '__main__':
     os.system("cls")
-    img_path = './images/'
+    img_path = './images2/'
 
     transform = T.Compose([
             T.Resize(cfg.ori_shape),
@@ -89,8 +90,27 @@ if __name__ == '__main__':
     
     key = {0: 'Neutral', 1:'Happy', 2:'Sad', 3:'Surprise', 4:'Fear', 5:'Disgust', 6:'Anger', 7:'Contempt'}
     predictions, filenames = multiplePredictions(model, img_path, transform)
-    for i in range(len(predictions)):
-        print("{0} ---> {1}".format(filenames[i], key[predictions[i]]))
-    for i in range(len(predictions)):
-        insertIntoTable(id=i+1, name=key[predictions[i]], value=predictions[i], filename=filenames[i])    
+    
+    try:
+        connection = mysql.connector.connect(
+                                    host = config['mysql']['host'],
+                                    database = config['mysql']['database'],
+                                    user = config['mysql']['user'],
+                                    password = config['mysql']['password'])
+        
+        if connection.is_connected():
+            cursor = connection.cursor()
+            print("Connected to mySQL database server. Cursor object created.")
+            
+        for i in range(len(predictions)):
+            print("{0} ---> {1}".format(filenames[i], key[predictions[i]]))
+            insertIntoTable(connection, cursor, id=i+1, name=key[predictions[i]], value=predictions[i], filename=filenames[i])    
+            
+    except Error as e:
+        print("Error while connecting to MySQL", e)
+    finally:
+        if connection.is_connected():
+            cursor.close()
+            connection.close()
+            print("\nMySQL connection is closed")
     

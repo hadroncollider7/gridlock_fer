@@ -104,6 +104,7 @@ if __name__ == "__main__":
         if connection.is_connected():
             cursor = connection.cursor()
             print("Connected to mySQL database server. Cursor object created.")
+        
         capture = cv2.VideoCapture(0)
         while True:
             _, img = capture.read()

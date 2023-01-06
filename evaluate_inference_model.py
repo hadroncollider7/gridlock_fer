@@ -8,10 +8,7 @@ import torch
 import torch.nn.functional as F
 import torchvision.transforms as T
 from models.make_target_model import make_target_model
-from mysql_queries import insertIntoTable
-
-from inference import inference, multiplePredictions
-
+from inference import multiplePredictions
 import pandas as pd
 
 
