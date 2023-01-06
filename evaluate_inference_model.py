@@ -74,9 +74,9 @@ if __name__ == '__main__':
         subjectiveLabels[i] = int(subjectiveLabels[i])
         
     # Create dictionary with filename and label
-    chauLabelDict = {}
+    labelDictionary = {}
     for i in range(len(labelFilenames)):
-        chauLabelDict[labelFilenames[i]] = subjectiveLabels[i]
+        labelDictionary[labelFilenames[i]] = subjectiveLabels[i]
     
     predictions, filenames = multiplePredictions(model, img_path, transform)
     count = 0
@@ -87,8 +87,8 @@ if __name__ == '__main__':
             if filenames[i] == notAFace_images[j]:
                 AFace = False
         if AFace:
-            print("{3}: {0}, predicted: {1}, label: {2}".format(filenames[i], key[predictions[i]], key[key_researchGroup[chauLabelDict[filenames[i]]]], count))
-            if  key[predictions[i]] == key[key_researchGroup[chauLabelDict[filenames[i]]]]: 
+            print("{3}: {0}, predicted: {1}, label: {2}".format(filenames[i], key[predictions[i]], key[key_researchGroup[labelDictionary[filenames[i]]]], count))
+            if  key[predictions[i]] == key[key_researchGroup[labelDictionary[filenames[i]]]]: 
                 accuracy_score += 1
             count += 1 
     
