@@ -39,6 +39,12 @@ def insertIntoTable(id, name, value, filename):
             cursor.close()
             connection.close()
             print("\nMySQL connection is closed")
+
+
+
+
+
+
             
 if __name__ == '__main__':
     """Connect to the MySQL database server, access the FER_Predictions table,
@@ -64,10 +70,10 @@ if __name__ == '__main__':
             record = cursor.fetchall()
             
             # Print the table
-            print("\nQuery results (id, name, value, filename):\n")            
+            print("\nQuery results:\n(id, name, value, filename)")            
             # Loop throught the rows
             for row in record:
-                print("{0}\n".format(row))
+                print("{0}".format(row))
 
     except Error as e:
         print("Error while connecting to MySQL", e)

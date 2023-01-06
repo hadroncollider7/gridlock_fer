@@ -7,8 +7,10 @@ from inference import inference
 import torchvision.transforms as T
 from models.make_target_model import make_target_model
 from collections import Counter, deque
+from mysql_queries import insertIntoTable
 
 transformation = transforms.Compose([transforms.ToTensor(), transforms.Normalize((0.5,), (0.5,))])
+key_mysql = {0: 'Neutral', 1:'Happy', 2:'Sad', 3:'Surprise', 4:'Fear', 5:'Disgust', 6:'Anger', 7:'Contempt'}
 key = {0: '^(* . *)^ --> Neutral', 1:'<(^___^)> --> Happy', 2:'(TT____TT) --> Sad', 
        3:'(O___0) --> Surprise', 4:'\(>___<)/ --> Fear', 5:'Disgust', 6:'Angy!!! --> >:(', 7:'Contempt --> X______X'}
 
@@ -84,6 +86,9 @@ if __name__ == "__main__":
     predictionsList = deque(predictionsList)
     print("Initialized que of size {0}".format(len(predictionsList)))
     
+    # Used for the numner of ticks until upload prediction to database server
+    counterToUpload = 0
+    
     capture = cv2.VideoCapture(0)
     while True:
         _, img = capture.read()
@@ -115,13 +120,22 @@ if __name__ == "__main__":
         
         
         cv2.imshow('img', img)
+        
+        # Upload to database server after a certain number of ticks
+        noOfTicks = 10
+        if counterToUpload % noOfTicks == noOfTicks - 1:
+            insertIntoTable(1, key_mysql[predictionsMode], predictionsMode, 'regionOfInterest.jpg')
+        counterToUpload += 1
+        
         # Stop if (Q) is pressed
         k = cv2.waitKey(30)
         if k==ord("q"):
             break
+        
+        
+        
     
     
     # Release the VideoCapture object
     capture.release()
-        
-        
+
