@@ -94,7 +94,7 @@ if __name__ == "__main__":
     
     # Used for the numner of ticks until upload prediction to database server
     counterToUpload = 0
-    uploadToDatabaseServer = True
+    uploadToDatabaseServer = False
     try:
         if uploadToDatabaseServer == True:
             connection = mysql.connector.connect(
@@ -160,7 +160,7 @@ if __name__ == "__main__":
     except Error as e:
         print("Error while connecting to MySQL", e)
     finally:
-        if connection.is_connected() and uploadToDatabaseServer == True:
+        if uploadToDatabaseServer != False and connection.is_connected():
             cursor.close()
             connection.close()
             print("\nMySQL connection is closed")
