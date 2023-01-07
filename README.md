@@ -20,3 +20,6 @@ The configuration file is required to access the database.
 Run `inference.py` to make FER predictions on all image files in the `img_path` filepath.
 
 After inference, the prediction string, value (int), and filename (string) associated with each prediction will be stored in the `FER_Predictions` table in the database server at the `id` index of the table.
+
+### Real-time FER inferences
+`webcam.py` uses a webcam to make real-time FER inferences. The inferences are first stored in a que of a set size. The statistical mode of the que is the FER prediction. IF `uploadToDatabaseServer = True`, then the prediction is uploaded to the mySQl database server after a set amount of "ticks". Simply set `uploadToDatabaseServer = False` to use the webcam to make real-time inferences without using mySQL. 
