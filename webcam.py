@@ -94,16 +94,17 @@ if __name__ == "__main__":
     
     # Used for the numner of ticks until upload prediction to database server
     counterToUpload = 0
+    uploadToDatabaseServer = True
     try:
-        connection = mysql.connector.connect(
-                                    host = config['mysql']['host'],
-                                    database = config['mysql']['database'],
-                                    user = config['mysql']['user'],
-                                    password = config['mysql']['password'])
-        
-        if connection.is_connected():
-            cursor = connection.cursor()
-            print("Connected to mySQL database server. Cursor object created.")
+        if uploadToDatabaseServer == True:
+            connection = mysql.connector.connect(
+                                        host = config['mysql']['host'],
+                                        database = config['mysql']['database'],
+                                        user = config['mysql']['user'],
+                                        password = config['mysql']['password'])
+            if connection.is_connected():
+                cursor = connection.cursor()
+                print("Connected to mySQL database server. Cursor object created.")
         
         capture = cv2.VideoCapture(0)
         while True:
@@ -138,14 +139,15 @@ if __name__ == "__main__":
             cv2.imshow('img', img)
             
             # Upload to database server after a certain number of ticks
-            noOfTicks = 5
-            if counterToUpload % noOfTicks == noOfTicks - 1:
-                insertIntoTable(connection, cursor, 
-                                id=1, 
-                                name=key_mysql[predictionsMode], 
-                                value=predictionsMode, 
-                                filename='regionOfInterest.jpg')
-            counterToUpload += 1
+            if uploadToDatabaseServer == True:
+                noOfTicks = 5
+                if counterToUpload % noOfTicks == noOfTicks - 1:
+                    insertIntoTable(connection, cursor, 
+                                    id=1, 
+                                    name=key_mysql[predictionsMode], 
+                                    value=predictionsMode, 
+                                    filename='regionOfInterest.jpg')
+                counterToUpload += 1
             
             # Stop if (Q) is pressed
             k = cv2.waitKey(30)
@@ -158,7 +160,7 @@ if __name__ == "__main__":
     except Error as e:
         print("Error while connecting to MySQL", e)
     finally:
-        if connection.is_connected():
+        if connection.is_connected() and uploadToDatabaseServer == True:
             cursor.close()
             connection.close()
             print("\nMySQL connection is closed")
