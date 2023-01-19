@@ -134,6 +134,8 @@ config.yml
 # Images
 *.png 
 *.jpg 
+# Icons
+*.ico 
 
 # Testing scripts
 testcode.py
