@@ -67,7 +67,7 @@ def computeModeOfList(myList):
 
 if __name__ == "__main__":
     device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
-    
+
     os.system("cls")
     transform = T.Compose([
             T.Resize(cfg.ori_shape),
@@ -80,10 +80,10 @@ if __name__ == "__main__":
     model = make_target_model(cfg)
     model.load_param(cfg)
     print('Loaded pretrained model from {0}'.format(cfg.pretrained))
-    
+
     # Load the cascade
     face_cascade = cv2.CascadeClassifier('haarcascade_frontalface_default.xml')
-    
+
     # Initialize a que to store predictions
     predictionsList = []
     queSize = 7
@@ -91,10 +91,10 @@ if __name__ == "__main__":
         predictionsList.append(0)
     predictionsList = deque(predictionsList)
     print("Initialized que of size {0}".format(len(predictionsList)))
-    
+
     # Used for the numner of ticks until upload prediction to database server
     counterToUpload = 0
-    uploadToDatabaseServer = False
+    uploadToDatabaseServer = True
     try:
         if uploadToDatabaseServer == True:
             connection = mysql.connector.connect(
@@ -164,4 +164,4 @@ if __name__ == "__main__":
             cursor.close()
             connection.close()
             print("\nMySQL connection is closed")
-    
+

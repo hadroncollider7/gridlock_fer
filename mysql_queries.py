@@ -22,8 +22,19 @@ def insertIntoTable(connection, cursor, id, name, value, filename):
     connection.commit()
     print("Record successfully inserted into FER_Predictions table")
 
+def insertColumn(connection, cursor, query):
+    """Inserts a column into the FER_Predictions table.
+    Can also be used to delete a column
 
-
+    Args:
+        connection (mySQL object): _description_
+        cursor (mySQL object): _description_
+        query (string)): This is the query that the database server will run.
+    """
+    # mysqlQuery = "ALTER TABLE FER_Predictions ADD created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP AFTER value;"
+    cursor.execute(query)
+    connection.commit()
+    print("Column successfully inserted into table")
 
             
 if __name__ == '__main__':
@@ -44,13 +55,37 @@ if __name__ == '__main__':
             cursor.execute("select database();")
             record = cursor.fetchall()
             print("You are connected to database: ", record)
+
+            # # Insert timestamp column into table
+            # mysqlQuery = "ALTER TABLE FER_Predictions ADD created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP AFTER value;"
+            # insertColumn(connection, cursor, mysqlQuery)
+            
+            # Show tables
+            mysqlQuery = 'SHOW TABLES;'
+            cursor.execute(mysqlQuery)
+            record = cursor.fetchall()
+            print('\nShowing tables:')
+            i = 1
+            for item in record:
+                print('{1}. {0}'.format(item[0], i))
+                i += 1
+                
+            # Describe a table
+            mysqlQuery = 'DESCRIBE FER_Predictions;'
+            cursor.execute(mysqlQuery)
+            record = cursor.fetchall()
+            print('\nTable description:')
+            for row in record:
+                print('{0}'.format(row))
+            
+            
             
             mysqlQuery = 'SELECT * FROM FER_Predictions;'
             cursor.execute(mysqlQuery)
             record = cursor.fetchall()
             
             # Print the table
-            print("\nQuery results:\n(id, name, value, filename)")            
+            print("\nQuery results:\n(id, name, value, created_at, filename)")            
             # Loop throught the rows
             for row in record:
                 print("{0}".format(row))
