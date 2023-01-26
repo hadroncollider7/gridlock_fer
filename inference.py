@@ -28,7 +28,19 @@ cfg.bnneck = True
 cfg.BiasInCls = False
 
 
-def inference(model, img_path, transform, printPredictions=False, is_cuda=True):
+def inference(model, img_path, transform, is_cuda=True):
+    """Performs inference with the pytorch model
+
+    Args:
+        model (_type_): a pytorch model
+        img_path (string): filepath to the image to perform inference
+        transform (_type_): 
+        is_cuda (bool, optional): _description_. Defaults to True.
+
+    Returns:
+        int idx: the argmax of the softmax (i.e., the predicted emotion)
+        inferenceDistribution: the softmax across the classes of emotions 
+    """
     img = Image.open(img_path).convert('RGB')    
     img_tensor = transform(img).unsqueeze(0)
     if is_cuda:
@@ -41,14 +53,15 @@ def inference(model, img_path, transform, printPredictions=False, is_cuda=True):
     pred = model(img_tensor)
     prob = F.softmax(pred, dim=-1)
     idx  = torch.argmax(prob.cpu()).item()
+    inferenceDistribution = []
 
-    if printPredictions==True:
-        key = {0: 'Neutral', 1:'Happy', 2:'Sad', 3:'Surprise', 4:'Fear', 5:'Disgust', 6:'Anger', 7:'Contempt'}
-        print('Predicted: {}'.format(key[idx]))
-        print('Probabilities:')
-        for i in range(cfg.num_classes):
-            print('{} ----> {}'.format(key[i], round(prob[0,i].item(), 4)))
-    return idx
+    key = {0: 'Neutral', 1:'Happy', 2:'Sad', 3:'Surprise', 4:'Fear', 5:'Disgust', 6:'Anger', 7:'Contempt'}
+    print('Predicted: {}'.format(key[idx]))
+    print('Probabilities:')
+    for i in range(cfg.num_classes):
+        inferenceDistribution.append(prob[0, i].item())
+        print('{} ----> {}'.format(key[i], round(inferenceDistribution[-1], 4)))
+    return idx, inferenceDistribution
 
 def multiplePredictions(model, img_path, transform, printFilenames=False):
     """
@@ -73,7 +86,7 @@ def multiplePredictions(model, img_path, transform, printFilenames=False):
 
 if __name__ == '__main__':
     os.system("cls")
-    img_path = './images2/'
+    img_path = './images2/test1.jpg'
 
     transform = T.Compose([
             T.Resize(cfg.ori_shape),
@@ -88,29 +101,32 @@ if __name__ == '__main__':
     model.load_param(cfg)
     print('Loaded pretrained model from {0}'.format(cfg.pretrained))
     
-    key = {0: 'Neutral', 1:'Happy', 2:'Sad', 3:'Surprise', 4:'Fear', 5:'Disgust', 6:'Anger', 7:'Contempt'}
-    predictions, filenames = multiplePredictions(model, img_path, transform)
+    inference(model, img_path, transform)
     
-    try:
-        connection = mysql.connector.connect(
-                                    host = config['mysql']['host'],
-                                    database = config['mysql']['database'],
-                                    user = config['mysql']['user'],
-                                    password = config['mysql']['password'])
+    
+    # key = {0: 'Neutral', 1:'Happy', 2:'Sad', 3:'Surprise', 4:'Fear', 5:'Disgust', 6:'Anger', 7:'Contempt'}
+    # predictions, filenames = multiplePredictions(model, img_path, transform)
+    
+    # try:
+    #     connection = mysql.connector.connect(
+    #                                 host = config['mysql']['host'],
+    #                                 database = config['mysql']['database'],
+    #                                 user = config['mysql']['user'],
+    #                                 password = config['mysql']['password'])
         
-        if connection.is_connected():
-            cursor = connection.cursor()
-            print("Connected to mySQL database server. Cursor object created.")
+    #     if connection.is_connected():
+    #         cursor = connection.cursor()
+    #         print("Connected to mySQL database server. Cursor object created.")
             
-        for i in range(len(predictions)):
-            print("{0} ---> {1}".format(filenames[i], key[predictions[i]]))
-            insertIntoTable(connection, cursor, id=i+1, name=key[predictions[i]], value=predictions[i], filename=filenames[i])    
+    #     for i in range(len(predictions)):
+    #         print("{0} ---> {1}".format(filenames[i], key[predictions[i]]))
+    #         insertIntoTable(connection, cursor, id=i+1, name=key[predictions[i]], value=predictions[i], filename=filenames[i])    
             
-    except Error as e:
-        print("Error while connecting to MySQL", e)
-    finally:
-        if connection.is_connected():
-            cursor.close()
-            connection.close()
-            print("\nMySQL connection is closed")
+    # except Error as e:
+    #     print("Error while connecting to MySQL", e)
+    # finally:
+    #     if connection.is_connected():
+    #         cursor.close()
+    #         connection.close()
+    #         print("\nMySQL connection is closed")
     
