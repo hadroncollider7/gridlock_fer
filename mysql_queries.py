@@ -41,6 +41,8 @@ if __name__ == '__main__':
     """Connect to the MySQL database server, access the FER_Predictions table,
     and retreive records from the table."""
     os.system("cls")
+    select_table = "Gridlock_FER"
+    
     try:
         connection = mysql.connector.connect(
                                     host = config['mysql']['host'],
@@ -71,7 +73,7 @@ if __name__ == '__main__':
                 i += 1
                 
             # Describe a table
-            mysqlQuery = 'DESCRIBE FER_Predictions;'
+            mysqlQuery = 'DESCRIBE {0:s};'.format(select_table)
             cursor.execute(mysqlQuery)
             record = cursor.fetchall()
             print('\nTable description:')
@@ -80,7 +82,7 @@ if __name__ == '__main__':
             
             
             
-            mysqlQuery = 'SELECT * FROM FER_Predictions;'
+            mysqlQuery = 'SELECT * FROM {0:s};'.format(select_table)
             cursor.execute(mysqlQuery)
             record = cursor.fetchall()
             
