@@ -29,7 +29,7 @@ cfg.BiasInCls = False
 
 
 def inference(model, img_path, transform, printSoftmax=False, is_cuda=True):
-    """Performs inference with the pytorch model
+    """Performs inference with the pytorch model. Inference is conducted for a single image.
 
     Args:
         model (_type_): a pytorch model
@@ -71,9 +71,9 @@ def multiplePredictions(model, img_path, transform, printFilenames=False):
     ferPredictions list. 
     
     Outputs:
-        list ferPredictions
-        list ferSoftmax: list of the distributions of each prediction
-        list filenames
+        list ferPredictions: the class that is predicted via the argmax of the softmax
+        list ferSoftmax: list of the distributions (floats) of each prediction
+        list filenames: the filenames (string) associated with the other outputs
     """
     ferPrediction = []
     ferSoftmax = []
@@ -112,6 +112,8 @@ if __name__ == '__main__':
     key = {0: 'Neutral', 1:'Happy', 2:'Sad', 3:'Surprise', 4:'Fear', 5:'Disgust', 6:'Anger', 7:'Contempt'}
     predictions, distributions, filenames = multiplePredictions(model, img_path, transform)
     
+    selectTable = config['selectTable']
+    
     try:
         connection = mysql.connector.connect(
                                     host = config['mysql']['host'],
@@ -125,7 +127,7 @@ if __name__ == '__main__':
             
         for i in range(len(predictions)):
             print("{0} ---> {1}, \ndistribution: {2}".format(filenames[i], key[predictions[i]], distributions[i]))
-            insertIntoTable(connection, cursor, id=i+1, name=key[predictions[i]], value=predictions[i], filename=filenames[i])    
+            insertIntoTable(connection, cursor, id=i+1, prediction=key[predictions[i]], valueArgmax=predictions[i], prob=distributions[i], filename=filenames[i])    
             
     except Error as e:
         print("Error while connecting to MySQL", e)

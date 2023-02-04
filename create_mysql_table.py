@@ -27,6 +27,7 @@ try:
                             5_disgust_softmax DECIMAL(4,4) NOT NULL,
                             6_anger_softmax DECIMAL(4,4) NOT NULL,
                             7_contempt_softmax DECIMAL(4,4) NOT NULL,
+                            filename VARCHAR(100) NOT NULL,
                             created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
                             PRIMARY KEY (id)) """
     
