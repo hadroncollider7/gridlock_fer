@@ -6,24 +6,36 @@ import os
 with open('config.yml','r') as ymlConfigFile:
     config = yaml.safe_load(ymlConfigFile)
     
-def deleteFromTable(id,cursor,connection):
+def deleteFromTable(id, cursor, connection, selectTable):
     """This function is only called from the insertIntoTable() function."""
-    mysqlQuery = """DELETE FROM FER_Predictions where id={0};""".format(id)
+    mysqlQuery = """DELETE FROM {1:s} where id={0};""".format(id, selectTable)
     cursor.execute(mysqlQuery)
     connection.commit()
     print("Record id#{0} successfully deleted from FER_Predictions table".format(id))
 
 
-def insertIntoTable(connection, cursor, id, name, value, filename):
-    deleteFromTable(id,cursor,connection)       # Delete current row entries at id
-    mysqlQuery = """INSERT INTO FER_Predictions (id,name,value,filename)
-                    VALUES ({0},'{1}',{2},'{3}');""".format(id,name,value,filename)
+def insertIntoTable(connection, cursor, id, prediction, valueArgmax, prob, filename):
+    """Insert a single entry into the Gridlock_FER table.
+    
+    Args:
+        connection (mysql object)
+        cursor (mysql object)
+        id (int)
+        prediction (string): The emotion label of the argmax of prob
+        valueArgmax (int): the class argmax
+        prob (list of floats): The softmax associated with the inference
+        filename (string)
+    """
+    selectTable = config['selectTable']
+    deleteFromTable(id, cursor, connection, selectTable)       # Delete current row entries at id
+    mysqlQuery = """INSERT INTO {0} (id, predicted, value_argmax, 0_neutral_softmax, 1_happy_softmax, 2_sad_softmax, 3_surprise_softmax, 4_fear_softmax, 5_disgust_softmax, 6_anger_softmax, 7_contempt_softmax, filename)
+                    VALUES ({1},'{2}',{3},'{4}','{5}','{6}','{7}','{8}','{9}','{10}','{11}','{12}');""".format(selectTable,id,prediction,valueArgmax,prob[0],prob[1],prob[2],prob[3],prob[4],prob[5],prob[6],prob[7],filename)
     cursor.execute(mysqlQuery)
     connection.commit()
-    print("Record successfully inserted into FER_Predictions table")
+    print("Record successfully inserted into {0:s} table".format(selectTable))
 
 def insertColumn(connection, cursor, query):
-    """Inserts a column into the FER_Predictions table.
+    """Inserts a column into the Gridlock_FER table.
     Can also be used to delete a column
 
     Args:
@@ -32,6 +44,7 @@ def insertColumn(connection, cursor, query):
         query (string)): This is the query that the database server will run.
     """
     # mysqlQuery = "ALTER TABLE FER_Predictions ADD created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP AFTER value;"
+    selectTable = config['selectTable']
     cursor.execute(query)
     connection.commit()
     print("Column successfully inserted into table")
@@ -41,6 +54,8 @@ if __name__ == '__main__':
     """Connect to the MySQL database server, access the FER_Predictions table,
     and retreive records from the table."""
     os.system("cls")
+    select_table = config['selectTable']
+    
     try:
         connection = mysql.connector.connect(
                                     host = config['mysql']['host'],
@@ -56,8 +71,8 @@ if __name__ == '__main__':
             record = cursor.fetchall()
             print("You are connected to database: ", record)
 
-            # # Insert timestamp column into table
-            # mysqlQuery = "ALTER TABLE FER_Predictions ADD created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP AFTER value;"
+            # Insert column into table
+            # mysqlQuery = "ALTER TABLE {0:s} ADD filename VARCHAR(200) NOT NULL AFTER 7_contempt_softmax;".format(select_table)
             # insertColumn(connection, cursor, mysqlQuery)
             
             # Show tables
@@ -70,8 +85,8 @@ if __name__ == '__main__':
                 print('{1}. {0}'.format(item[0], i))
                 i += 1
                 
-            # Describe a table
-            mysqlQuery = 'DESCRIBE FER_Predictions;'
+            # Describe the selected table
+            mysqlQuery = 'DESCRIBE {0:s};'.format(select_table)
             cursor.execute(mysqlQuery)
             record = cursor.fetchall()
             print('\nTable description:')
@@ -80,12 +95,12 @@ if __name__ == '__main__':
             
             
             
-            mysqlQuery = 'SELECT * FROM FER_Predictions;'
+            mysqlQuery = 'SELECT * FROM {0:s};'.format(select_table)
             cursor.execute(mysqlQuery)
             record = cursor.fetchall()
             
             # Print the table
-            print("\nQuery results:\n(id, name, value, created_at, filename)")            
+            print("\nQuery results:")            
             # Loop throught the rows
             for row in record:
                 print("{0}".format(row))

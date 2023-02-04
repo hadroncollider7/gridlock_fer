@@ -138,4 +138,4 @@ config.yml
 *.ico 
 
 # Testing scripts
-testcode.py
+*test.py

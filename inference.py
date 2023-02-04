@@ -28,7 +28,19 @@ cfg.bnneck = True
 cfg.BiasInCls = False
 
 
-def inference(model, img_path, transform, printPredictions=False, is_cuda=True):
+def inference(model, img_path, transform, printSoftmax=False, is_cuda=True):
+    """Performs inference with the pytorch model. Inference is conducted for a single image.
+
+    Args:
+        model (_type_): a pytorch model
+        img_path (string): filepath to the image to perform inference
+        transform (_type_): 
+        is_cuda (bool, optional): _description_. Defaults to True.
+
+    Returns:
+        int idx: the argmax of the softmax (i.e., the predicted emotion)
+        inferenceDistribution: the softmax across the classes of emotions, rounded to 4 significant digits
+    """
     img = Image.open(img_path).convert('RGB')    
     img_tensor = transform(img).unsqueeze(0)
     if is_cuda:
@@ -41,14 +53,17 @@ def inference(model, img_path, transform, printPredictions=False, is_cuda=True):
     pred = model(img_tensor)
     prob = F.softmax(pred, dim=-1)
     idx  = torch.argmax(prob.cpu()).item()
+    inferenceDistribution = []
 
-    if printPredictions==True:
-        key = {0: 'Neutral', 1:'Happy', 2:'Sad', 3:'Surprise', 4:'Fear', 5:'Disgust', 6:'Anger', 7:'Contempt'}
-        print('Predicted: {}'.format(key[idx]))
+    key = {0: 'Neutral', 1:'Happy', 2:'Sad', 3:'Surprise', 4:'Fear', 5:'Disgust', 6:'Anger', 7:'Contempt'}
+    print('Predicted: {}'.format(key[idx]))
+    if printSoftmax == True:
         print('Probabilities:')
-        for i in range(cfg.num_classes):
-            print('{} ----> {}'.format(key[i], round(prob[0,i].item(), 4)))
-    return idx
+    for i in range(cfg.num_classes):
+        inferenceDistribution.append(round(prob[0, i].item(), 4))
+        if printSoftmax == True:
+            print('{} ----> {}'.format(key[i], inferenceDistribution[i]))
+    return idx, inferenceDistribution
 
 def multiplePredictions(model, img_path, transform, printFilenames=False):
     """
@@ -56,16 +71,21 @@ def multiplePredictions(model, img_path, transform, printFilenames=False):
     ferPredictions list. 
     
     Outputs:
-        Two lists containing the predictiction string and the filename, respectively.
+        list ferPredictions: the class that is predicted via the argmax of the softmax
+        list ferSoftmax: list of the distributions (floats) of each prediction
+        list filenames: the filenames (string) associated with the other outputs
     """
     ferPrediction = []
+    ferSoftmax = []
     filenames = []
     for filename in sorted(os.listdir(img_path)):
-        ferPrediction.append(inference(model, img_path+filename, transform, is_cuda=True))
+        idx, prob = inference(model, img_path+filename, transform)
+        ferPrediction.append(idx)
+        ferSoftmax.append(prob)
         filenames.append(filename)
         if printFilenames:
             print(filename)
-    return ferPrediction, filenames
+    return ferPrediction, ferSoftmax, filenames
     
 
 
@@ -73,7 +93,7 @@ def multiplePredictions(model, img_path, transform, printFilenames=False):
 
 if __name__ == '__main__':
     os.system("cls")
-    img_path = './images2/'
+    img_path = config['sourcePaths']['imagePath']
 
     transform = T.Compose([
             T.Resize(cfg.ori_shape),
@@ -88,8 +108,11 @@ if __name__ == '__main__':
     model.load_param(cfg)
     print('Loaded pretrained model from {0}'.format(cfg.pretrained))
     
+    
     key = {0: 'Neutral', 1:'Happy', 2:'Sad', 3:'Surprise', 4:'Fear', 5:'Disgust', 6:'Anger', 7:'Contempt'}
-    predictions, filenames = multiplePredictions(model, img_path, transform)
+    predictions, distributions, filenames = multiplePredictions(model, img_path, transform)
+    
+    selectTable = config['selectTable']
     
     try:
         connection = mysql.connector.connect(
@@ -103,8 +126,8 @@ if __name__ == '__main__':
             print("Connected to mySQL database server. Cursor object created.")
             
         for i in range(len(predictions)):
-            print("{0} ---> {1}".format(filenames[i], key[predictions[i]]))
-            insertIntoTable(connection, cursor, id=i+1, name=key[predictions[i]], value=predictions[i], filename=filenames[i])    
+            print("{0} ---> {1}, \ndistribution: {2}".format(filenames[i], key[predictions[i]], distributions[i]))
+            insertIntoTable(connection, cursor, id=i+1, prediction=key[predictions[i]], valueArgmax=predictions[i], prob=distributions[i], filename=filenames[i])    
             
     except Error as e:
         print("Error while connecting to MySQL", e)

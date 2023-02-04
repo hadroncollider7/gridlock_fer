@@ -61,10 +61,11 @@ if __name__ == "__main__":
     key_researchGroup = {0:0, 1:6, 2:7, 3:5, 4:4, 5:1, 6:2, 7:3, 8:8, 9:9}
     
     # Read labels from the research group spreadsheet
-    batch_no = 4
+    batch_no = 1
     column = 'chau'
     sheet = 'Labels'
     
+    # Select batch to make inference
     if batch_no == 2:
         img_path = 'images/batch2/'
         spreadsheet = 'Batch2_Labels.xlsx'
