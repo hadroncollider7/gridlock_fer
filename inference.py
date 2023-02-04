@@ -93,7 +93,7 @@ def multiplePredictions(model, img_path, transform, printFilenames=False):
 
 if __name__ == '__main__':
     os.system("cls")
-    img_path = './images2/'
+    img_path = config['sourcePaths']['imagePath']
 
     transform = T.Compose([
             T.Resize(cfg.ori_shape),
