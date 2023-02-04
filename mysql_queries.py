@@ -41,7 +41,7 @@ if __name__ == '__main__':
     """Connect to the MySQL database server, access the FER_Predictions table,
     and retreive records from the table."""
     os.system("cls")
-    select_table = "Gridlock_FER"
+    select_table = config['selectTable']
     
     try:
         connection = mysql.connector.connect(
