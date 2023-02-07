@@ -99,7 +99,7 @@ if __name__ == "__main__":
     for i in range(len(labelFilenames)):
         labelDictionary[labelFilenames[i]] = subjectiveLabels[i]
     
-    predictions, filenames = multiplePredictions(model, img_path, transform)
+    predictions, _, filenames = multiplePredictions(model, img_path, transform)
     # Sort by predictions in ascending order
     predictions, filenames = sortTwoListsTogether(predictions, filenames)
     
