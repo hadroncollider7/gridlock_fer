@@ -20,7 +20,7 @@ key_mysql = {0: 'Neutral', 1:'Happy', 2:'Sad', 3:'Surprise', 4:'Fear', 5:'Disgus
 key = {0: '^(* . *)^ --> Neutral', 1:'<(^___^)> --> Happy', 2:'(TT____TT) --> Sad', 
        3:'(O___0) --> Surprise', 4:'\(>___<)/ --> Fear', 5:'Disgust', 6:'Angy!!! --> >:(', 7:'Contempt --> X______X'}
 
-
+# A class to define the image preprocessing parameters and the inference model parameters.
 class Config:
     pass
 cfg = Config()
@@ -69,6 +69,9 @@ if __name__ == "__main__":
     device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 
     os.system("cls")
+    # ***********************************************************************
+    # Building the model
+    # ***********************************************************************
     transform = T.Compose([
             T.Resize(cfg.ori_shape),
             T.CenterCrop(cfg.image_crop_size),
@@ -81,6 +84,9 @@ if __name__ == "__main__":
     model.load_param(cfg)
     print('Loaded pretrained model from {0}'.format(cfg.pretrained))
 
+    # ***********************************************************************
+    # Haarcascade classifier detect faces in an image
+    # ***********************************************************************
     # Load the cascade
     face_cascade = cv2.CascadeClassifier('haarcascade_frontalface_default.xml')
 
@@ -88,7 +94,9 @@ if __name__ == "__main__":
     predictionsList = []
     queSize = 7
     for i in range(queSize):
+        # Initializes the que of size queSize with zeros
         predictionsList.append(0)
+    # Prime the list for endpoint operations
     predictionsList = deque(predictionsList)
     print("Initialized que of size {0}".format(len(predictionsList)))
 
