@@ -94,7 +94,7 @@ if __name__ == "__main__":
 
     # Used for the numner of ticks until upload prediction to database server
     counterToUpload = 0
-    uploadToDatabaseServer = True
+    uploadToDatabaseServer = False
     try:
         if uploadToDatabaseServer == True:
             connection = mysql.connector.connect(
@@ -123,7 +123,7 @@ if __name__ == "__main__":
                 cv2.imwrite("regionOfInterest.jpg", regionOfInterest)
                 cv2.rectangle(img, (x, y), (x+w, y+h), (255, 0, 0), 2)
             
-            predictionsList.append(inference(model, 'regionOfInterest.jpg', transform))
+            predictionsList.append(inference(model, 'regionOfInterest.jpg', transform)[0])
             predictionsList.popleft()
             predictionsMode = computeModeOfList(predictionsList)
             print(predictionsList)
