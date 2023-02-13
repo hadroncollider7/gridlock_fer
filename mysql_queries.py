@@ -50,10 +50,9 @@ def insertColumn(connection, cursor, query):
     print("Column successfully inserted into table")
 
             
-if __name__ == '__main__':
+def main_mysqQueries():
     """Connect to the MySQL database server, access the FER_Predictions table,
     and retreive records from the table."""
-    os.system("cls")
     select_table = config['selectTable']
     
     try:
@@ -112,4 +111,6 @@ if __name__ == '__main__':
             cursor.close()
             connection.close()
             print("\nMySQL connection is closed")
-        
+
+if __name__ == "__main__":
+    main_mysqQueries()

@@ -1,7 +1,7 @@
 # gridlock_fer
 The purpose of this repository is to develop the FER component of Project Gridlock.
 
-## Prerequisites
+## Dependencies
 Because the database server is on Rowan's network, and subject to its firewall, it can only be accessed remotely through Rowan's vpn, or while connected through Rowan's Wifi network.
 
 The configuration file is required to access the database.
@@ -11,9 +11,11 @@ The configuration file is required to access the database.
 ### Modules
  - Pytorch = 1.13.0
  - Python = 3.9.15
- - yaml = 6.0
+ - PyYAML = 6.0
  - mySQL Connector = 8.0.31
  - cuda = 11.7.1
+ - watchdog = 2.2.1
+    - argh = 26.2
 
 
 ## Making FER predictions
