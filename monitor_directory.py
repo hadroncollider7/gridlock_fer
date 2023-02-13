@@ -1,6 +1,6 @@
 import time
 from watchdog.observers import Observer
-from watchdog.events import FileSystemEventHandler
+from watchdog.events import PatternMatchingEventHandler
 import yaml
 
 with open("config.yml", "r") as ymlConfigFile:
@@ -31,19 +31,22 @@ class OnMyWatch:
         
         
         
-class Handler(FileSystemEventHandler):
+class Handler(PatternMatchingEventHandler):
+    def __init__(self):
+        # Set the patterns for PatternMatchingEventHandler
+        PatternMatchingEventHandler.__init__(self, patterns=['*.jpg'],
+                                             ignore_directories=True,
+                                             case_sensitive=False)
     
-    @staticmethod
-    def on_any_event(event):
-    # Will execute for any event
-        if event.is_directory:
-            return None
+    def on_created(self, event):
+        # Will execute for creation events
+        print("Watchdog received created event: {1:s}".format(event, event.src_path))
         
-        elif event.event_type == 'created':
-            # Event is created, you can process it now
-            print("Watchdog received created event - % s." %event.src_path)
-        elif event.event_type == "deleted":
-            print("Watchdog received deleted event - %s." %event.src_path)
+    def on_deleted(self, event):
+        # Will execute for modified events
+        print("Watchdog received delete event: {1:s}".format(event, event.src_path))
+
+    
 
 
 if __name__ == "__main__":
