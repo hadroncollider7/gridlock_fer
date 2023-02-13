@@ -91,8 +91,7 @@ def multiplePredictions(model, img_path, transform, printFilenames=False):
 
 
 
-if __name__ == '__main__':
-    os.system("cls")
+def main_inference():
     img_path = config['sourcePaths']['imagePath']
 
     transform = T.Compose([
@@ -136,4 +135,8 @@ if __name__ == '__main__':
             cursor.close()
             connection.close()
             print("\nMySQL connection is closed")
-    
+
+
+
+if __name__ == "__main__":
+    main_inference()

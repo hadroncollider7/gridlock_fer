@@ -2,6 +2,8 @@ import time
 from watchdog.observers import Observer
 from watchdog.events import PatternMatchingEventHandler
 import yaml
+from inference import main_inference
+from mysql_queries import main_mysqQueries
 
 with open("config.yml", "r") as ymlConfigFile:
     config = yaml.safe_load(ymlConfigFile)
@@ -41,6 +43,8 @@ class Handler(PatternMatchingEventHandler):
     def on_created(self, event):
         # Will execute for creation events
         print("Watchdog received created event: {1:s}".format(event, event.src_path))
+        main_inference()
+        main_mysqQueries()
         
     def on_deleted(self, event):
         # Will execute for modified events
