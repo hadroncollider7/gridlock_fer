@@ -91,9 +91,7 @@ def multiplePredictions(model, img_path, transform, printFilenames=False):
 
 
 
-def main_inference():
-    img_path = config['sourcePaths']['imagePath']
-
+def main_inference(table_id, img_path):
     transform = T.Compose([
             T.Resize(cfg.ori_shape),
             T.CenterCrop(cfg.image_crop_size),
@@ -109,10 +107,9 @@ def main_inference():
     
     
     key = {0: 'Neutral', 1:'Happy', 2:'Sad', 3:'Surprise', 4:'Fear', 5:'Disgust', 6:'Anger', 7:'Contempt'}
-    predictions, distributions, filenames = multiplePredictions(model, img_path, transform)
+    prediction, distribution = inference(model, img_path, transform)
     
-    selectTable = config['selectTable']
-    
+      
     try:
         connection = mysql.connector.connect(
                                     host = config['mysql']['host'],
@@ -123,10 +120,12 @@ def main_inference():
         if connection.is_connected():
             cursor = connection.cursor()
             print("Connected to mySQL database server. Cursor object created.")
-            
-        for i in range(len(predictions)):
-            print("{0} ---> {1}, \ndistribution: {2}".format(filenames[i], key[predictions[i]], distributions[i]))
-            insertIntoTable(connection, cursor, id=i+1, prediction=key[predictions[i]], valueArgmax=predictions[i], prob=distributions[i], filename=filenames[i])    
+        
+        # Get the base filename in a directory
+        filename = os.path.basename(img_path).split('/')[-1]
+        
+        print("{0} ---> {1}, \ndistribution: {2}".format(img_path, key[prediction], distribution))
+        insertIntoTable(connection, cursor, id=table_id, prediction=key[prediction], valueArgmax=prediction, prob=distribution, filename=filename)    
             
     except Error as e:
         print("Error while connecting to MySQL", e)
@@ -135,8 +134,3 @@ def main_inference():
             cursor.close()
             connection.close()
             print("\nMySQL connection is closed")
-
-
-
-if __name__ == "__main__":
-    main_inference()
