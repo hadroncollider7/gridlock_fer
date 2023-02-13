@@ -66,6 +66,7 @@ def computeModeOfList(myList):
     
 
 if __name__ == "__main__":
+    uploadToDatabaseServer = True
     device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 
     os.system("cls")
@@ -102,7 +103,6 @@ if __name__ == "__main__":
 
     # Used for the numner of ticks until upload prediction to database server
     counterToUpload = 0
-    uploadToDatabaseServer = False
     try:
         if uploadToDatabaseServer == True:
             connection = mysql.connector.connect(
@@ -131,7 +131,8 @@ if __name__ == "__main__":
                 cv2.imwrite("regionOfInterest.jpg", regionOfInterest)
                 cv2.rectangle(img, (x, y), (x+w, y+h), (255, 0, 0), 2)
             
-            predictionsList.append(inference(model, 'regionOfInterest.jpg', transform)[0])
+            prediction, distribution = inference(model, 'regionOfInterest.jpg', transform)
+            predictionsList.append(prediction)
             predictionsList.popleft()
             predictionsMode = computeModeOfList(predictionsList)
             print(predictionsList)
@@ -150,10 +151,12 @@ if __name__ == "__main__":
             if uploadToDatabaseServer == True:
                 noOfTicks = 5
                 if counterToUpload % noOfTicks == noOfTicks - 1:
-                    insertIntoTable(connection, cursor, 
+                    insertIntoTable(connection, 
+                                    cursor, 
                                     id=1, 
-                                    name=key_mysql[predictionsMode], 
-                                    value=predictionsMode, 
+                                    prediction=key_mysql[predictionsMode], 
+                                    valueArgmax=predictionsMode, 
+                                    prob = (0,0,0,0,0,0,0,0),
                                     filename='regionOfInterest.jpg')
                 counterToUpload += 1
             
