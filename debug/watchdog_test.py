@@ -6,7 +6,7 @@ import os
 
 if __name__ == "__main__":
     """
-    A simple program to moniotr the current directory recursively for
+    A simple program to monitor the current directory recursively for
     file system changes and log them to the console.
     """
     os.system("cls")        # Clear the console
@@ -17,7 +17,7 @@ if __name__ == "__main__":
     path = sys.argv[1] if len(sys.argv) > 1 else '.'
     # Implement a subclass of watchdog.events.FileSystemEventHandler (LoggingEventHandler already implements the subclass)
     event_handler = LoggingEventHandler()
-    # Create an instance of hte watchdog.observers.Observer thread class
+    # Create an instance of the watchdog.observers.Observer thread class
     observer = Observer()
     # Schedule monitoring a few paths with the observer instance attaching the event handler
     observer.schedule(event_handler, path, recursive=True)
