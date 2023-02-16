@@ -44,7 +44,7 @@ class Handler(PatternMatchingEventHandler):
         # Will execute for creation events
         print("Watchdog received created event: {1:s}".format(event, event.src_path))
         print(event)
-        table_id = event.src_path[-6:-4]
+        table_id = event.src_path.split('_')[-1].split('.')[0]
         print("table id: ", table_id)
         image_path = event.src_path
         main_inference(table_id, image_path)
