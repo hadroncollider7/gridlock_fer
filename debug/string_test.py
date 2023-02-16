@@ -1,3 +1,4 @@
-mystring = "hello world_18.jpg"
+mystring = "John_Smith_1.jpg"
+thename = mystring.split('_')[-1].split('.')[0]
 
-print(mystring[-6:-4])
+print(thename)
