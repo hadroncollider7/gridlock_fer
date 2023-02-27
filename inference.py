@@ -91,7 +91,7 @@ def multiplePredictions(model, img_path, transform, printFilenames=False):
 
 
 
-def main_inference(table_id, img_path):
+def main_inference(username, img_path):
     transform = T.Compose([
             T.Resize(cfg.ori_shape),
             T.CenterCrop(cfg.image_crop_size),
@@ -125,7 +125,7 @@ def main_inference(table_id, img_path):
         filename = os.path.basename(img_path).split('/')[-1]
         
         print("{0} ---> {1}, \ndistribution: {2}".format(img_path, key[prediction], distribution))
-        insertIntoTable(connection, cursor, id=table_id, prediction=key[prediction], valueArgmax=prediction, prob=distribution, filename=filename)    
+        insertIntoTable(connection, cursor, username=username, prediction=key[prediction], valueArgmax=prediction, prob=distribution, filename=filename)    
             
     except Error as e:
         print("Error while connecting to MySQL", e)
