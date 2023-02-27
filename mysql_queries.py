@@ -6,30 +6,30 @@ import os
 with open('config.yml','r') as ymlConfigFile:
     config = yaml.safe_load(ymlConfigFile)
     
-def deleteFromTable(id, cursor, connection, selectTable):
-    """This function is only called from the insertIntoTable() function."""
-    mysqlQuery = """DELETE FROM {1:s} where id={0};""".format(id, selectTable)
+def deleteFromTable(username, cursor, connection, selectTable):
+    """This function is only called from the insertIntoTable() function (Update: not anymore)"""
+    mysqlQuery = """DELETE FROM {1:s} where username='{0}';""".format(username, selectTable)
     cursor.execute(mysqlQuery)
     connection.commit()
-    print("Record id#{0} successfully deleted from FER_Predictions table".format(id))
+    print("Record username: {0:s} successfully deleted from FER_Predictions table".format(username))
 
 
-def insertIntoTable(connection, cursor, id, prediction, valueArgmax, prob, filename):
+def insertIntoTable(connection, cursor, username, prediction, valueArgmax, prob, filename):
     """Insert a single entry into the Gridlock_FER table.
     
     Args:
         connection (mysql object)
         cursor (mysql object)
-        id (int)
+        username (string)
         prediction (string): The emotion label of the argmax of prob
         valueArgmax (int): the class argmax
         prob (list of floats): The softmax associated with the inference
         filename (string)
     """
     selectTable = config['selectTable']
-    deleteFromTable(id, cursor, connection, selectTable)       # Delete current row entries at id
-    mysqlQuery = """INSERT INTO {0} (id, predicted, value_argmax, 0_neutral_softmax, 1_happy_softmax, 2_sad_softmax, 3_surprise_softmax, 4_fear_softmax, 5_disgust_softmax, 6_anger_softmax, 7_contempt_softmax, filename)
-                    VALUES ({1},'{2}',{3},'{4}','{5}','{6}','{7}','{8}','{9}','{10}','{11}','{12}');""".format(selectTable,id,prediction,valueArgmax,prob[0],prob[1],prob[2],prob[3],prob[4],prob[5],prob[6],prob[7],filename)
+    deleteFromTable(username, cursor, connection, selectTable)       # Delete current row entries at username
+    mysqlQuery = """INSERT INTO {0} (username, predicted, value_argmax, 0_neutral_softmax, 1_happy_softmax, 2_sad_softmax, 3_surprise_softmax, 4_fear_softmax, 5_disgust_softmax, 6_anger_softmax, 7_contempt_softmax, filename)
+                    VALUES ('{1}','{2}',{3},'{4}','{5}','{6}','{7}','{8}','{9}','{10}','{11}','{12}');""".format(selectTable,username,prediction,valueArgmax,prob[0],prob[1],prob[2],prob[3],prob[4],prob[5],prob[6],prob[7],filename)
     cursor.execute(mysqlQuery)
     connection.commit()
     print("Record successfully inserted into {0:s} table".format(selectTable))
@@ -69,10 +69,26 @@ def main_mysqQueries():
             cursor.execute("select database();")
             record = cursor.fetchall()
             print("You are connected to database: ", record)
+            
+            # *************** DELETE TABLE ENTRIES ***************
+            # for i in range(3):
+            #     deleteFromTable(i+1,cursor,connection,select_table)
 
-            # Insert column into table
-            # mysqlQuery = "ALTER TABLE {0:s} ADD filename VARCHAR(200) NOT NULL AFTER 7_contempt_softmax;".format(select_table)
+            # **************** INSERT COLUMN INTO TABLE ************************
+            # mysqlQuery = "ALTER TABLE {0:s} ADD username VARCHAR(50) NOT NULL AFTER id;".format(select_table)
             # insertColumn(connection, cursor, mysqlQuery)
+            
+            # ****************** DELETE COLUMN *********************
+            # mysqlQuery = "ALTER TABLE {0:s} DROP COLUMN id".format(select_table)
+            # cursor.execute(mysqlQuery)
+            
+            # **************** DROP PRIMARY KEY CONSTRAINT *****************
+            # mysqlQuery = "ALTER TABLE {0:s} DROP PRIMARY KEY".format(select_table)
+            # cursor.execute(mysqlQuery)
+            
+            # ***************** CREATE A PRIMARY KEY ****************
+            # mysqlQuery = "ALTER TABLE {0:s} ADD PRIMARY KEY (username);".format(select_table)
+            # cursor.execute(mysqlQuery)
             
             # Show tables
             mysqlQuery = 'SHOW TABLES;'
