@@ -27,9 +27,19 @@ def insertIntoTable(connection, cursor, username, prediction, valueArgmax, prob,
         filename (string)
     """
     selectTable = config['selectTable']
-    deleteFromTable(username, cursor, connection, selectTable)       # Delete current row entries at username
     mysqlQuery = """INSERT INTO {0} (username, predicted, value_argmax, 0_neutral_softmax, 1_happy_softmax, 2_sad_softmax, 3_surprise_softmax, 4_fear_softmax, 5_disgust_softmax, 6_anger_softmax, 7_contempt_softmax, filename)
-                    VALUES ('{1}','{2}',{3},'{4}','{5}','{6}','{7}','{8}','{9}','{10}','{11}','{12}');""".format(selectTable,username,prediction,valueArgmax,prob[0],prob[1],prob[2],prob[3],prob[4],prob[5],prob[6],prob[7],filename)
+                    VALUES ('{1}','{2}',{3},'{4}','{5}','{6}','{7}','{8}','{9}','{10}','{11}','{12}')
+                    ON DUPLICATE KEY UPDATE
+                        predicted = '{2}',
+                        value_argmax = '{3}',
+                        0_neutral_softmax = '{4}',
+                        1_happy_softmax = '{5}',
+                        2_sad_softmax = '{6}',
+                        3_surprise_softmax = '{7}',
+                        4_fear_softmax = '{8}',
+                        5_disgust_softmax = '{9}',
+                        6_anger_softmax = '{10}',
+                        7_contempt_softmax = '{11}';""".format(selectTable,username,prediction,valueArgmax,prob[0],prob[1],prob[2],prob[3],prob[4],prob[5],prob[6],prob[7],filename)
     cursor.execute(mysqlQuery)
     connection.commit()
     print("Record successfully inserted into {0:s} table".format(selectTable))
