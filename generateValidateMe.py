@@ -69,6 +69,7 @@ if __name__ == "__main__":
     column = config['evaluateInferenceModel']['column']
     sheet = config['evaluateInferenceModel']['sheet']
 
+  
     # Select batch to make inference
     if batch_no == 2:
         img_path = 'images/batch2/'
@@ -83,25 +84,8 @@ if __name__ == "__main__":
         img_path = 'images/batch1/0-999/'
         spreadsheet = 'Batch1_Labels.xlsx'
 
-    # Read in the spreadsheet
-    dataframe1 = pd.read_excel(spreadsheet, sheet_name=[sheet], usecols=['Image', column])
-    labelFilenames = list(dataframe1[sheet]['Image'])
-    subjectiveLabels = list(dataframe1[sheet][column])
 
-    # Remove bad images (i.e., not a face)
-    notAFace_images = []
-    for i in range(len(labelFilenames)):
-        if (subjectiveLabels[i] == 9) or (subjectiveLabels[i] == 8):
-            notAFace_images.append(labelFilenames[i])
 
-    # Convert type float to type int
-    for i in range(len(subjectiveLabels)):
-        subjectiveLabels[i] = int(subjectiveLabels[i])
-
-    # Create dictionary with filename and label
-    labelDictionary = {}
-    for i in range(len(labelFilenames)):
-        labelDictionary[labelFilenames[i]] = subjectiveLabels[i]
 
     predictions, _, filenames = multiplePredictions(model, img_path, transform)
     predictions_string = convert_predictions_to_string(predictions)
