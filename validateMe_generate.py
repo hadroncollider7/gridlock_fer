@@ -84,14 +84,26 @@ if __name__ == "__main__":
         img_path = 'images/batch1/0-999/'
         spreadsheet = 'Batch1_Labels.xlsx'
 
-
-
-
     predictions, _, filenames = multiplePredictions(model, img_path, transform)
+    
+    # Convert filenmame index to integers
+    for i in range(len(filenames)):
+        filenames[i] = int(filenames[i].split('_')[0])
+    
+    # Sort the filenames/predictions pair
+    zipped_list = zip(filenames, predictions)
+    sorted_pairs = sorted(zipped_list)
+    tuples = zip(*sorted_pairs)
+    filenames, predictions = [list(tuple) for tuple in tuples]
     predictions_string = convert_predictions_to_string(predictions)
+    
     # Zip the lists and construct a dataframe with them
     data = pd.DataFrame(list(zip(filenames, predictions, predictions_string)),
-                        columns=['filename', 'value', 'name'])
+                        columns=['filename index', 'value', 'name'])
 
     # Write to excel file
     data.to_excel('validate_me_batch{0}.xlsx'.format(batch_no))
+
+
+
+
