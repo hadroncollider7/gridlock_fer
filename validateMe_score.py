@@ -16,17 +16,18 @@ def load_validation_predictions(column, spreadsheet):
     data = np.squeeze(data)
     return data
 
-os.system("cls")
-with open('public_config.yml', 'r') as ymlConfigFile:
-    config = yaml.safe_load(ymlConfigFile)
+if __name__ == "__main__":
+    os.system("cls")
+    with open('public_config.yml', 'r') as ymlConfigFile:
+        config = yaml.safe_load(ymlConfigFile)
 
-# Load spreadsheet parameters
-column = config['evaluateInferenceModel']['column']
-spreadsheet = config['evaluateInferenceModel']['spreadsheet']
+    # Load spreadsheet parameters
+    column = config['evaluateInferenceModel']['column']
+    spreadsheet = config['evaluateInferenceModel']['spreadsheet']
 
-data = load_validation_predictions(column, spreadsheet)
+    data = load_validation_predictions(column, spreadsheet)
 
-# Calculate the accuracy
-score = int(np.sum(data))/len(data)
-# Print score
-print("Score for {0}: {1}".format(spreadsheet, score))
+    # Calculate the accuracy
+    score = int(np.sum(data))/len(data)
+    # Print score
+    print("Score for {0}: {1}".format(spreadsheet, score))
