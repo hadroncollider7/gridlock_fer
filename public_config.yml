@@ -1,6 +1,6 @@
 # This config file is used to save and adjust parameters.
 evaluateInferenceModel:
-  batch_no: 1
+  batch_no: 4
   sheet: Sheet1
   column: validation
-  spreadsheet: validated_batch1.xlsx
+  spreadsheet: validated_batch4.xlsx
