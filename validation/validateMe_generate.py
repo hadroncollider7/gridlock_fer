@@ -7,7 +7,7 @@ from models.make_target_model import make_target_model
 from inference import multiplePredictions
 import pandas as pd
 import yaml
-from evaluate_inference_model import sortTwoListsTogether
+from validation.evaluate_inference_model import sortTwoListsTogether
 
 with open('public_config.yml', 'r') as ymlConfigFile:
     config = yaml.safe_load(ymlConfigFile)
