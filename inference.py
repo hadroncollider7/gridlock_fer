@@ -8,7 +8,7 @@ from mysql_queries import insertIntoTable
 import mysql.connector
 from mysql.connector import Error       # Catches exceptions that may occur during this process.
 import yaml
-with open('config.yml','r') as ymlConfigFile:
+with open('config\config.yml','r') as ymlConfigFile:
     config = yaml.safe_load(ymlConfigFile)
 
 class Config:
@@ -28,7 +28,7 @@ cfg.bnneck = True
 cfg.BiasInCls = False
 
 
-def inference(model, img_path, transform, printSoftmax=False, is_cuda=True):
+def inference(model, img_path, transform, printPredictions=False, printSoftmax=False, is_cuda=True):
     """Performs inference with the pytorch model. Inference is conducted for a single image.
 
     Args:
@@ -56,7 +56,8 @@ def inference(model, img_path, transform, printSoftmax=False, is_cuda=True):
     inferenceDistribution = []
 
     key = {0: 'Neutral', 1:'Happy', 2:'Sad', 3:'Surprise', 4:'Fear', 5:'Disgust', 6:'Anger', 7:'Contempt'}
-    print('Predicted: {}'.format(key[idx]))
+    if printPredictions == True:
+        print('Predicted: {}'.format(key[idx]))
     if printSoftmax == True:
         print('Probabilities:')
     for i in range(cfg.num_classes):
@@ -86,7 +87,43 @@ def multiplePredictions(model, img_path, transform, printFilenames=False):
         if printFilenames:
             print(filename)
     return ferPrediction, ferSoftmax, filenames
+
+def predictionsForAffectnetValidation(model, img_filepath, transform):
+    """Predict emotions for Affectnet validation set
+
+    Args:
+        model (_type_): pytorch model
+        img_filepath (list): a list of filepaths (strings) to the images
+        transform (_type_): 
+        
+    Outputs:
+        predictions_list (list): list of integers for the predictions associated with the image file list
+    """
+    predictions_list = []
+    for img in img_filepath:
+        prediction, _ = inference(model, "D:/Projects/Datasets/AffectNet/Sample/affectNet_dataset_sample/"+img.split('../input/affectnetsample/')[-1], transform)
+        predictions_list.append(prediction)
+        
+    return predictions_list
     
+
+def predictionsForFer2013Validation(model, img_filepath, transform):
+    """Predict emotions for fer2013 validation set
+
+    Args:
+        model (_type_): pytorch model
+        img_filepath (list): a list of filepaths (strings) to the images
+        transform (_type_): 
+        
+    Outputs:
+        predictions_list (list): list of integers for the predictions associated with the image file list
+    """
+    predictions_list = []
+    for img in img_filepath:
+        prediction, _ = inference(model, "D:/Projects/Datasets/fer_2013/test/"+img, transform)
+        predictions_list.append(prediction)
+        
+    return predictions_list
 
 
 

@@ -3,7 +3,7 @@ from mysql.connector import Error       # Catches exceptions that may occur duri
 import yaml
 import os
 
-with open('config.yml','r') as ymlConfigFile:
+with open('config\config.yml','r') as ymlConfigFile:
     config = yaml.safe_load(ymlConfigFile)
     
 def deleteFromTable(username, cursor, connection, selectTable):

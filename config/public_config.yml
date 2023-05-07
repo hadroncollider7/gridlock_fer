@@ -1,0 +1,12 @@
+# This config file is used to save and adjust parameters.
+evaluateInferenceModel:
+  batch_no: 4
+  sheet: Sheet1
+  column: validation
+  spreadsheet: validated_batch4.xlsx
+
+
+affectnet_dataset:
+  label_path: D:\Projects\Datasets\AffectNet\Sample\affectNet_dataset_sample\valid-sample-affectnet.csv
+
+
