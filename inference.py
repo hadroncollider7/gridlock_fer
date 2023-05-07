@@ -107,6 +107,24 @@ def predictionsForAffectnetValidation(model, img_filepath, transform):
     return predictions_list
     
 
+def predictionsForFer2013Validation(model, img_filepath, transform):
+    """Predict emotions for fer2013 validation set
+
+    Args:
+        model (_type_): pytorch model
+        img_filepath (list): a list of filepaths (strings) to the images
+        transform (_type_): 
+        
+    Outputs:
+        predictions_list (list): list of integers for the predictions associated with the image file list
+    """
+    predictions_list = []
+    for img in img_filepath:
+        prediction, _ = inference(model, "D:/Projects/Datasets/fer_2013/test/"+img, transform)
+        predictions_list.append(prediction)
+        
+    return predictions_list
+
 
 
 
